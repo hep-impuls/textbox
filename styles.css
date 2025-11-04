@@ -59,15 +59,13 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* --- MODIFIED BUTTON STYLE --- */
 #printAllSubIdsBtn {
-    background-color: #002f6c;  /* Changed to the requested color */
+    background-color: #002f6c;
     color: white;
 }
 #printAllSubIdsBtn:hover {
-    background-color: #00408a;  /* A slightly lighter shade for the hover effect */
+    background-color: #00408a;
 }
-/* --- END MODIFICATION --- */
 
 #saveIndicator {
     position: fixed;
@@ -85,11 +83,13 @@ button:hover {
     margin-bottom: 15px;
 }
 
+/* --- MODIFIED PARAGRAPH SPACING --- */
 .paragraphs-container p {
     font-size: 14pt;
     line-height: 1.4;
-    margin: 0 0 1em 0;
+    margin: 0 0 9.6pt 0; /* Changed from 1em to the calculated 9.6pt */
 }
+/* --- END MODIFICATION --- */
 
 .paragraphs-container strong,
 .paragraphs-container em {
