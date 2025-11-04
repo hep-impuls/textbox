@@ -87,7 +87,7 @@ button:hover {
 .paragraphs-container p {
     font-size: 14pt;
     line-height: 1.1;
-    margin: 0 0 4.6pt 0; /* Changed from 1em to the calculated 9.6pt */
+    margin: 0 0 6.6pt 0; /* Changed from 1em to the calculated 9.6pt */
 }
 /* --- END MODIFICATION --- */
 
