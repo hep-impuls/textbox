@@ -86,8 +86,8 @@ button:hover {
 /* --- MODIFIED PARAGRAPH SPACING --- */
 .paragraphs-container p {
     font-size: 14pt;
-    line-height: 1.4;
-    margin: 0 0 9.6pt 0; /* Changed from 1em to the calculated 9.6pt */
+    line-height: 1.1;
+    margin: 0 0 4.6pt 0; /* Changed from 1em to the calculated 9.6pt */
 }
 /* --- END MODIFICATION --- */
 
