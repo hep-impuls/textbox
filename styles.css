@@ -16,7 +16,6 @@ body {
 }
 
 .quill-editor {
-    /* Removed margin-bottom to let the word count sit closer */
     background-color: var(--editor-background);
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -30,16 +29,13 @@ body {
     box-sizing: border-box;
 }
 
-/* --- NEW Word Count Style --- */
 .word-count-display {
     text-align: right;
     font-size: 12px;
     color: #666;
     padding: 4px 8px;
-    margin-bottom: 10px; /* Adds space below the word count */
+    margin-bottom: 10px;
 }
-/* --- END NEW STYLE --- */
-
 
 .button-container {
     display: flex;
@@ -63,13 +59,15 @@ button:hover {
     transform: translateY(-2px);
 }
 
+/* --- MODIFIED BUTTON STYLE --- */
 #printAllSubIdsBtn {
-    background-color: #673AB7;  
+    background-color: #002f6c;  /* Changed to the requested color */
     color: white;
 }
 #printAllSubIdsBtn:hover {
-    background-color: #5E35B1;  
+    background-color: #00408a;  /* A slightly lighter shade for the hover effect */
 }
+/* --- END MODIFICATION --- */
 
 #saveIndicator {
     position: fixed;
