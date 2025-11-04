@@ -1,4 +1,4 @@
-// script.js - v5 (Paragraphs & Custom Editor Config)
+// script.js - v5.1 (With URL Decoding Fix for H5P)
 
 (function() {
     'use strict';
@@ -6,7 +6,7 @@
     // --- CONFIGURATION & STATE---
     const STORAGE_PREFIX = 'textbox-assignment_';
     const SUB_STORAGE_PREFIX = 'textbox-sub_';
-    const PARAGRAPHS_PREFIX = 'textbox-paragraphs_'; // Changed from QUESTIONS_PREFIX
+    const PARAGRAPHS_PREFIX = 'textbox-paragraphs_';
     let quill; 
 
     // --- HELPER FUNCTIONS ---
@@ -94,9 +94,9 @@
         
         const paragraphs = {};
         params.forEach((value, key) => {
-            // Look for 'p' prefixes like p1, p2, etc.
             if (key.match(/^p\d+$/)) {
-                paragraphs[key] = value;
+                // **THE FIX IS HERE:** Decode the parameter value
+                paragraphs[key] = decodeURIComponent(value);
             }
         });
 
@@ -117,7 +117,7 @@
             const paragraphsObject = JSON.parse(stored);
             const sortedKeys = Object.keys(paragraphsObject).sort((a, b) => (parseInt(a.replace('p', ''), 10) - parseInt(b.replace('p', ''), 10)));
             
-            let html = '<div class="paragraphs-print">'; // Use a different class for printing
+            let html = '<div class="paragraphs-print">';
             sortedKeys.forEach(pKey => {
                 html += `<p>${parseMarkdown(paragraphsObject[pKey])}</p>`;
             });
@@ -171,7 +171,7 @@
             let allContent = `<h2>${assignmentSuffix}</h2>`;
             sortedSubIds.forEach((subId, index) => {
                 const answerContent = subIdAnswerMap.get(subId);
-                const paragraphsHtml = getParagraphsHtmlFromStorage(assignmentId, subId); // Updated function call
+                const paragraphsHtml = getParagraphsHtmlFromStorage(assignmentId, subId);
                 if (paragraphsHtml || answerContent) {
                     const blockClass = 'sub-assignment-block' + (index > 0 ? ' new-page' : '');
                     allContent += `<div class="${blockClass}">`;
@@ -200,7 +200,6 @@
         const lineHeight = '1.4em';
         const lineColor = '#d2d2d2';
         
-        // **MODIFIED**: Changed h2 and h3 color to #002f6c as requested
         printWindow.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${printWindowTitle}</title><meta http-equiv="Content-Security-Policy" content="img-src 'self' data:"><style>body{font-family:Arial,sans-serif;color:#333;line-height:${lineHeight};padding:${lineHeight};margin:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{size:A4;margin:1cm}.lined-content{background-color:#fdfdfa;position:relative;min-height:calc(22 * ${lineHeight});height:auto;overflow:visible;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(${lineHeight} - 1px),${lineColor} calc(${lineHeight} - 1px),${lineColor} ${lineHeight});background-size:100% ${lineHeight};background-position:0 0;background-repeat:repeat-y}h1,h2,h3,p,li,div,.paragraphs-print,.sub-assignment-block{line-height:inherit;background-color:transparent!important;margin-top:0;margin-bottom:0}h2{color:#002f6c;margin-bottom:${lineHeight}}h3{color:#002f6c;margin-top:${lineHeight};margin-bottom:${lineHeight};page-break-after:avoid}.paragraphs-print p{margin-bottom:0.5em;}.sub-assignment-block{margin-bottom:${lineHeight};padding-top:.1px}img{max-width:100%;height:auto;display:block;page-break-inside:avoid;margin-top:${lineHeight};margin-bottom:${lineHeight}}@media print{.sub-assignment-block{page-break-after:always}.sub-assignment-block:last-child{page-break-after:auto}}</style></head><body>${content}</body></html>`);
         printWindow.document.close();
         printWindow.onload = () => { setTimeout(() => { printWindow.focus(); printWindow.print(); }, 500); };
@@ -212,19 +211,17 @@
             theme: 'snow',
             placeholder: 'Gib hier deinen Text ein...',
             modules: {
-                // **MODIFIED**: Toolbar without list buttons
                 toolbar: [
                     ['bold', 'italic', 'underline'],
                     ['clean']
                 ],
-                // **MODIFIED**: Keyboard module to disable auto-formatting lists
                 keyboard: {
                     bindings: {
                         'list autofill override': {
                             key: ' ',
                             prefix: /^\s*([*]|\d+\.)$/,
                             handler: function() {
-                                return true; // Prevents list creation, just inserts a space
+                                return true;
                             }
                         }
                     }
@@ -232,7 +229,6 @@
             }
         });
         
-        // Keep the paste-only-image functionality
         if (quill.root) {
             quill.root.addEventListener('paste', function(e) {
                 e.preventDefault();
