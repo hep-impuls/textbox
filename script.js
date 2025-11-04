@@ -1,4 +1,4 @@
-// script.js - v5.3 (With Word Count Feature)
+// script.js - v5.4 (Adds Word Count to Printout)
 
 (function() {
     'use strict';
@@ -36,23 +36,32 @@
         setTimeout(() => { indicator.style.opacity = '0'; }, 2000);
     }
 
-    // --- NEW: WORD COUNT FUNCTION ---
     function updateWordCount() {
         const wordCountElement = document.getElementById('wordCount');
         if (!quill || !wordCountElement) return;
-
-        // Get plain text from the editor and trim whitespace
         const text = quill.getText().trim();
         let wordCount = 0;
-
-        // Check if there is any text to count
         if (text.length > 0) {
-            // Split by one or more whitespace characters (space, newline, tab)
-            // and filter out any empty strings that might result from multiple spaces.
             wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
         }
-
         wordCountElement.textContent = `Wörter: ${wordCount}`;
+    }
+
+    // --- NEW: Helper to count words from stored HTML for printing ---
+    function countWords(html) {
+        if (!html || html === '<p><br></p>') {
+            return 0;
+        }
+        // Create a temporary element to strip HTML tags and get plain text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const text = (tempDiv.textContent || tempDiv.innerText || "").trim();
+        
+        if (text.length === 0) {
+            return 0;
+        }
+        
+        return text.split(/\s+/).filter(word => word.length > 0).length;
     }
 
 
@@ -160,7 +169,7 @@
         } catch (e) { return ''; }
     }
 
-    // --- PRINTING LOGIC (Unchanged) ---
+    // --- PRINTING LOGIC (MODIFIED) ---
     function printAllSubIdsForAssignment() {
         const assignmentId = getQueryParams().get('assignmentId') || 'defaultAssignment';
 
@@ -207,9 +216,13 @@
                 const answerContent = subIdAnswerMap.get(subId);
                 const paragraphsHtml = getParagraphsHtmlFromStorage(assignmentId, subId);
                 if (paragraphsHtml || answerContent) {
+                    // **MODIFICATION**: Calculate word count and add it to the printout
+                    const wordCount = countWords(answerContent);
                     const blockClass = 'sub-assignment-block' + (index > 0 ? ' new-page' : '');
+                    
                     allContent += `<div class="${blockClass}">`;
                     allContent += `<h3>Thema: ${subId}</h3>`;
+                    allContent += `<p class="print-word-count">Anzahl Wörter: ${wordCount}</p>`; // Word count added here
                     if (paragraphsHtml) allContent += paragraphsHtml;
                     allContent += `<div class="lined-content">${answerContent || '<p><em>Antworten:</em></p>'}</div>`;
                     allContent += `</div>`;
@@ -234,12 +247,13 @@
         const lineHeight = '1.4em';
         const lineColor = '#d2d2d2';
         
-        printWindow.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${printWindowTitle}</title><meta http-equiv="Content-Security-Policy" content="img-src 'self' data:"><style>body{font-family:Arial,sans-serif;color:#333;line-height:${lineHeight};padding:${lineHeight};margin:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{size:A4;margin:1cm}.lined-content{background-color:#fdfdfa;position:relative;min-height:calc(22 * ${lineHeight});height:auto;overflow:visible;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(${lineHeight} - 1px),${lineColor} calc(${lineHeight} - 1px),${lineColor} ${lineHeight});background-size:100% ${lineHeight};background-position:0 0;background-repeat:repeat-y}h1,h2,h3,p,li,div,.paragraphs-print,.sub-assignment-block{line-height:inherit;background-color:transparent!important;margin-top:0;margin-bottom:0}h2{color:#002f6c;margin-bottom:${lineHeight}}h3{color:#002f6c;margin-top:${lineHeight};margin-bottom:${lineHeight};page-break-after:avoid}.paragraphs-print p{margin-bottom:0.5em;}.sub-assignment-block{margin-bottom:${lineHeight};padding-top:.1px}img{max-width:100%;height:auto;display:block;page-break-inside:avoid;margin-top:${lineHeight};margin-bottom:${lineHeight}}@media print{.sub-assignment-block{page-break-after:always}.sub-assignment-block:last-child{page-break-after:auto}}</style></head><body>${content}</body></html>`);
+        // **MODIFICATION**: Added .print-word-count style
+        printWindow.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${printWindowTitle}</title><meta http-equiv="Content-Security-Policy" content="img-src 'self' data:"><style>body{font-family:Arial,sans-serif;color:#333;line-height:${lineHeight};padding:${lineHeight};margin:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{size:A4;margin:1cm}.lined-content{background-color:#fdfdfa;position:relative;min-height:calc(22 * ${lineHeight});height:auto;overflow:visible;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(${lineHeight} - 1px),${lineColor} calc(${lineHeight} - 1px),${lineColor} ${lineHeight});background-size:100% ${lineHeight};background-position:0 0;background-repeat:repeat-y}h1,h2,h3,p,li,div,.paragraphs-print,.sub-assignment-block{line-height:inherit;background-color:transparent!important;margin-top:0;margin-bottom:0}h2{color:#002f6c;margin-bottom:${lineHeight}}h3{color:#002f6c;margin-top:${lineHeight};margin-bottom:${lineHeight};page-break-after:avoid}.paragraphs-print p{margin-bottom:0.5em;}.sub-assignment-block{margin-bottom:${lineHeight};padding-top:.1px}.print-word-count{font-size:12px;color:#555;font-style:italic;margin-bottom:0.5em;text-align:right;}img{max-width:100%;height:auto;display:block;page-break-inside:avoid;margin-top:${lineHeight};margin-bottom:${lineHeight}}@media print{.sub-assignment-block{page-break-after:always}.sub-assignment-block:last-child{page-break-after:auto}}</style></head><body>${content}</body></html>`);
         printWindow.document.close();
         printWindow.onload = () => { setTimeout(() => { printWindow.focus(); printWindow.print(); }, 500); };
     }
 
-    // --- PAGE INITIALIZATION ---
+    // --- PAGE INITIALIZATION (Unchanged) ---
     document.addEventListener("DOMContentLoaded", function() {
         quill = new Quill('#answerBox', {
             theme: 'snow',
@@ -288,10 +302,9 @@
             });
         }
 
-        // **MODIFIED**: Update word count on text change
         quill.on('text-change', (delta, oldDelta, source) => {
             if (source === 'user') { debouncedSave(); }
-            updateWordCount(); // Update count whenever text changes
+            updateWordCount();
         });
 
         const { subId, paragraphs } = getParagraphsFromUrlAndSave();
@@ -309,8 +322,6 @@
         }
 
         loadContent();
-        
-        // **MODIFIED**: Update word count on initial load
         updateWordCount();
 
         const printAllSubIdsBtn = document.createElement('button');
