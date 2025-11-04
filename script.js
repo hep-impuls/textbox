@@ -1,4 +1,4 @@
-// script.js - v5.1 (With URL Decoding Fix for H5P)
+// script.js - v5.3 (With Word Count Feature)
 
 (function() {
     'use strict';
@@ -35,6 +35,26 @@
         indicator.style.opacity = '1';
         setTimeout(() => { indicator.style.opacity = '0'; }, 2000);
     }
+
+    // --- NEW: WORD COUNT FUNCTION ---
+    function updateWordCount() {
+        const wordCountElement = document.getElementById('wordCount');
+        if (!quill || !wordCountElement) return;
+
+        // Get plain text from the editor and trim whitespace
+        const text = quill.getText().trim();
+        let wordCount = 0;
+
+        // Check if there is any text to count
+        if (text.length > 0) {
+            // Split by one or more whitespace characters (space, newline, tab)
+            // and filter out any empty strings that might result from multiple spaces.
+            wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+        }
+
+        wordCountElement.textContent = `Wörter: ${wordCount}`;
+    }
+
 
     // --- DATA SAVING & LOADING (Unchanged) ---
     function saveContent() {
@@ -85,7 +105,18 @@
         }
     }
 
-    // --- PARAGRAPH HANDLING (Replaces Question Handling) ---
+    // --- PARAGRAPH HANDLING (Unchanged) ---
+    function base64DecodeUnicode(str) {
+        try {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        } catch (e) {
+            console.error("Failed to decode Base64 string:", str, e);
+            return "Error: Invalid Base64 data";
+        }
+    }
+
     function getParagraphsFromUrlAndSave() {
         const params = getQueryParams();
         const assignmentId = params.get('assignmentId');
@@ -95,8 +126,11 @@
         const paragraphs = {};
         params.forEach((value, key) => {
             if (key.match(/^p\d+$/)) {
-                // **THE FIX IS HERE:** Decode the parameter value
                 paragraphs[key] = decodeURIComponent(value);
+            }
+            if (key.match(/^b\d+$/)) {
+                const newKey = key.replace('b', 'p');
+                paragraphs[newKey] = base64DecodeUnicode(value);
             }
         });
 
@@ -126,7 +160,7 @@
         } catch (e) { return ''; }
     }
 
-    // --- PRINTING LOGIC ---
+    // --- PRINTING LOGIC (Unchanged) ---
     function printAllSubIdsForAssignment() {
         const assignmentId = getQueryParams().get('assignmentId') || 'defaultAssignment';
 
@@ -254,8 +288,10 @@
             });
         }
 
+        // **MODIFIED**: Update word count on text change
         quill.on('text-change', (delta, oldDelta, source) => {
             if (source === 'user') { debouncedSave(); }
+            updateWordCount(); // Update count whenever text changes
         });
 
         const { subId, paragraphs } = getParagraphsFromUrlAndSave();
@@ -273,6 +309,9 @@
         }
 
         loadContent();
+        
+        // **MODIFIED**: Update word count on initial load
+        updateWordCount();
 
         const printAllSubIdsBtn = document.createElement('button');
         printAllSubIdsBtn.id = 'printAllSubIdsBtn';
