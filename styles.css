@@ -1,0 +1,105 @@
+/* File: new-repo/styles.css */
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --editor-background: #ffffff;
+    --border-color: #cccccc;
+    --button-text-color: #ffffff;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.quill-editor {
+    margin-bottom: 10px;
+    background-color: var(--editor-background);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+#answerBox .ql-editor {
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+button {
+    padding: 8px 16px;  
+    font-size: 14px;      
+    cursor: pointer;
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+#printAllSubIdsBtn {
+    background-color: #673AB7;  
+    color: white;
+}
+#printAllSubIdsBtn:hover {
+    background-color: #5E35B1;  
+}
+
+#saveIndicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+/* --- NEW STYLES for Paragraphs --- */
+.paragraphs-container {
+    margin-bottom: 15px;
+}
+
+.paragraphs-container p {
+    font-size: 14pt; /* As requested */
+    line-height: 1.4;
+    margin: 0 0 1em 0; /* Spacing between paragraphs */
+}
+
+/* Style for bold and italic text within the paragraphs */
+.paragraphs-container strong,
+.paragraphs-container em {
+    color: #002f6c; /* As requested */
+}
+/* --- END NEW STYLES --- */
+
+
+.sub-id-info {
+    margin-bottom: 15px;
+}
+
+.ql-container.ql-snow {
+    border: 1px solid var(--border-color);
+    border-top: 0;
+}
+
+.ql-toolbar.ql-snow {
+    border: 1px solid var(--border-color);
+}
